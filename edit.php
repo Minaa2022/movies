@@ -1,5 +1,39 @@
 <?php
   require "data.php";
+if($_SERVER['REQUEST_METHOD']==='POST'){
+  $new = [
+    'movie_id'=> $_POST['id'],
+    'movie_title' => $_POST['movie_title'],
+    'director' => $_POST['director'],
+    'year' => $_POST['year'],
+    'genre' => $_POST['genre']
+
+  ];
+
+  $movies = array_map(function ($m)use ($new){
+    if ($m['movie_id']== $new['movie_id']){
+      return $new;
+    }
+    return $m;
+  }, $movies);
+
+  $_SESSION['MOVIE']=$movies;
+
+  header("Location: movie.php?id=".$movie['movie_id']);
+}
+  if(isset($_GET['id'])){
+    $movie = current(array_filter($movies,function($movie){
+      //return $movie['movie_id'] == $_GET['id'];
+      //return $movie['movie_id'] ===(int)$_GET['id'];
+      return $movie['movie_id'] == $_GET['id'];
+    })); 
+    if(!$movie){
+      header("Location:index.php");
+    }
+
+  }else {
+    header("Location:index.php");
+  }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,13 +49,15 @@
     <?php require "header.php"; ?>
     <h2 class="form-title">Edit Movie</h2>
     <form class="form" method="post">
-      <input 
+      <input type='hidden' name="='movie_id"
+value="<?php echo $movie['movie_id'];?> "   >   
+<input 
         type="text" 
         class="form-control" 
         name="movie_title" 
         placeholder="Movie Title" 
         required 
-        value="Labyrinth">
+        value="<?php echo $movie['movie_title'];?>">
       <div class="error text-danger"></div>
       <input 
         type="text" 
@@ -29,7 +65,7 @@
         name="director" 
         placeholder="Director" 
         required
-        value="Jim Henson">
+        value="<?php echo $movie['director'];?>">
       <div class="error text-danger"></div>
       <input 
         type="number" 
@@ -42,7 +78,8 @@
       <select class="form-select" name="genre">
         <option value="">Select a Genre</option>
         <?php foreach ($genres as $genre) : ?>
-        <option value="<?php echo $genre; ?>">
+        <option value="<?php echo $genre; ?>" <?php if($genre === $movie['genre']): ?>Selected<?php endif?>>
+    
           <?php echo $genre; ?>
         </option>
         <?php endforeach; ?>
@@ -50,6 +87,9 @@
       <div class="error text-danger"></div>
       <button type="submit" class="button">Update Movie</button>
     </form>
-  </main>
+    <form class="form" method="post" action="delete.php"> 
+    <input type='hidden' name="='movie_id"
+value="<?php echo $movie['movie_id'];?> "   >   
+<button class="button danger">Delete MOPvie</button> </main>
 </body>
 </html>
